@@ -1,4 +1,6 @@
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_surface.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -8,14 +10,38 @@
 #define SIZE 10
 #define AGENT_SIZE 2
 
+typedef struct rgb {
+  float r, g, b;
+} RGB;
+
+typedef struct hsl {
+  float h, s, l;
+} HSL;
+
 typedef struct {
   int vx, vy;
 } Velocity;
 
 typedef struct {
   int x, y;
-  Uint32 color;
+  RGB color;
 } Agent;
+
+float hue2rgb(float p, float q, float t) {
+
+  if (t < 0)
+    t += 1;
+  if (t > 1)
+    t -= 1;
+  if (t < 1. / 6)
+    return p + (q - p) * 6 * t;
+  if (t < 1. / 2)
+    return q;
+  if (t < 2. / 3)
+    return p + (q - p) * (2. / 3 - t) * 6;
+
+  return p;
+}
 
 RGB hsl2rgb(float h, float s, float l) {
 
@@ -52,19 +78,22 @@ Velocity get_rand_v() {
 
 void create_agents(Agent *pagents, int num_agents) {
   for (int i = 0; i < num_agents; i++) {
-    Uint32 color = rand();
-    pagents[i] = (Agent){WIDTH / 2, HEIGHT / 2, color};
+    float h = ((float)rand() / (float)RAND_MAX);
+    RGB rgb = hsl2rgb(h, 1, 0.5);
+    pagents[i] = (Agent){WIDTH / 2, HEIGHT / 2, rgb};
   }
 }
 
 void move_agent(SDL_Surface *psurface, Agent *pagent) {
   Velocity vel = get_rand_v();
+  RGB rgb = pagent->color;
 
   for (int i = 0; i < SIZE; i++) {
     pagent->x += vel.vx;
     pagent->y += vel.vy;
     SDL_Rect rect = (SDL_Rect){pagent->x, pagent->y, AGENT_SIZE, AGENT_SIZE};
-    SDL_FillSurfaceRect(psurface, &rect, pagent->color);
+    Uint32 color = SDL_MapSurfaceRGB(psurface, rgb.r, rgb.g, rgb.b);
+    SDL_FillSurfaceRect(psurface, &rect, color);
   }
 }
 
