@@ -17,6 +17,23 @@ typedef struct {
   Uint32 color;
 } Agent;
 
+RGB hsl2rgb(float h, float s, float l) {
+
+  RGB result;
+
+  if (0 == s) {
+    result.r = result.g = result.b = l * 255; // achromatic
+  } else {
+    float q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    float p = 2 * l - q;
+    result.r = hue2rgb(p, q, h + 1. / 3) * 255;
+    result.g = hue2rgb(p, q, h) * 255;
+    result.b = hue2rgb(p, q, h - 1. / 3) * 255;
+  }
+
+  return result;
+}
+
 Velocity get_rand_v() {
   int choice = rand() / (RAND_MAX / 4);
   switch (choice) {
@@ -35,7 +52,8 @@ Velocity get_rand_v() {
 
 void create_agents(Agent *pagents, int num_agents) {
   for (int i = 0; i < num_agents; i++) {
-    pagents[i] = (Agent){WIDTH / 2, HEIGHT / 2, 0xFFFFFF};
+    Uint32 color = rand();
+    pagents[i] = (Agent){WIDTH / 2, HEIGHT / 2, color};
   }
 }
 
