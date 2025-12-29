@@ -35,7 +35,7 @@ Velocity get_rand_v() {
 
 void create_agents(Agent *pagents, int num_agents) {
   for (int i = 0; i < num_agents; i++) {
-    pagents[0] = (Agent){WIDTH / 2, HEIGHT / 2, 0xFFFFFF};
+    pagents[i] = (Agent){WIDTH / 2, HEIGHT / 2, 0xFFFFFF};
   }
 }
 
